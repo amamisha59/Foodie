@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Chatbot</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+        }
+        .chat-box .message {
+            margin-bottom: 15px;
+        }
+        .chat-box .message.user {
+            text-align: right;
+        }
+        .chat-box .message.bot {
+            text-align: left;
+        }
+        .chat-box .message .content {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .chat-box .message.user .content {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .chat-box .message.bot .content {
+            background-color: #e2e2e2;
+            color: #333;
+        }
+        .input-group {
+            margin-top: 20px;
+        }
+        .bot-logo {
+            display: flex;
+            align-items: center;
+        }
+        .bot-logo img {
+            height: 150px;
+            width: 150px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container chat-container">
+        <div class="message bot bot-logo">
+            <!-- <img src="images/foodie.png" alt="Foodie Logo"> -->
+            <h2 class="text-center">Foodie Chatbot</h2>
+        </div>
+        <div class="chat-box" id="chat-box">
+            
+          <div class="content">
+                Hello, I am Foodie! Please provide the ingredients for tasty recipes.
+         </div>
+        
+        </div>
+        <div class="input-group">
+            <input type="text" id="user-input" class="form-control" placeholder="Enter ingredients separated by commas or type 'exit' to start over..." aria-label="User input" aria-describedby="button-send">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="button-send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('button-send');
+
+        function appendMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + sender;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'content';
+            contentDiv.innerText = text;
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userText = userInput.value;
+            if (userText.trim() === '') return;
+
+            appendMessage(userText, 'user');
+            userInput.value = '';
+
+            if (userText.toLowerCase() === 'exit') {
+                resetChat();
+                return;
+            }
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ingredients: userText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.recipes && data.recipes.length > 0) {
+                    data.recipes.forEach(recipe => {
+                        let recipeDetails = `
+                            Recipe: ${recipe.recipe_name}\n
+                            Description: ${recipe.description || 'N/A'}\n
+                            Instructions: ${recipe.instructions}\n
+                            Prep Time: ${recipe.prep_time} minutes\n
+                            Cook Time: ${recipe.cook_time} minutes\n
+                            Total Time: ${recipe.total_time} minutes\n
+                            Servings: ${recipe.servings}\n
+                            Category: ${recipe.category || 'N/A'}\n
+                            Ingredients:
+                        `;
+                        recipe.ingredients.forEach(ing => {
+                            recipeDetails += `\n  - ${ing.name}: ${ing.quantity} ${ing.unit}`;
+                        });
+                        appendMessage(recipeDetails, 'bot');
+                    });
+                } else {
+                    appendMessage('No recipes found. Please provide more or different ingredients.', 'bot');
+                }
+                appendMessage('Enter additional ingredients or type "exit" to start over:', 'bot');
+            });
+        }
+
+        function resetChat() {
+            chatBox.innerHTML = ''; // Clear chat messages
+            appendMessage('Hello, I am Foodie! Please provide the ingredients for tasty recipes.', 'bot');
+        }
+
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

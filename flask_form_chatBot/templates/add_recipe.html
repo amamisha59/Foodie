@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .ingredient-group {
+            margin-bottom: 10px;
+        }
+        .ingredient-group input {
+            margin-right: 10px;
+        }
+        .add-ingredient-btn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Add Recipe</h2>
+        <form action="/add_recipe" method="POST">
+            <div class="form-group">
+                <label for="recipe_name">Recipe Name</label>
+                <input type="text" class="form-control" id="recipe_name" name="recipe_name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="instructions">Instructions</label>
+                <textarea class="form-control" id="instructions" name="instructions" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="prep_time">Prep Time (minutes)</label>
+                <input type="number" class="form-control" id="prep_time" name="prep_time" required>
+            </div>
+            <div class="form-group">
+                <label for="cook_time">Cook Time (minutes)</label>
+                <input type="number" class="form-control" id="cook_time" name="cook_time" required>
+            </div>
+            <div class="form-group">
+                <label for="total_time">Total Time (minutes)</label>
+                <input type="number" class="form-control" id="total_time" name="total_time" required>
+            </div>
+            <div class="form-group">
+                <label for="servings">Servings</label>
+                <input type="number" class="form-control" id="servings" name="servings" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" class="form-control" id="category" name="category">
+            </div>
+            <div id="ingredients">
+                <h4>Ingredients</h4>
+                <div class="ingredient-group">
+                    <input type="text" class="form-control d-inline" name="ingredient_name[]" placeholder="Ingredient Name" required>
+                    <input type="number" step="any" class="form-control d-inline" name="quantity[]" placeholder="Quantity" required>
+                    <input type="text" class="form-control d-inline" name="unit[]" placeholder="Unit" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary add-ingredient-btn" onclick="addIngredient()">Add Ingredient</button>
+            <br>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        function addIngredient() {
+            const ingredientsDiv = document.getElementById('ingredients');
+            const ingredientGroup = document.createElement('div');
+            ingredientGroup.className = 'ingredient-group';
+            ingredientGroup.innerHTML = `
+                <input type="text" class="form-control d-inline" name="ingredient_name[]" placeholder="Ingredient Name" required>
+                <input type="number" step="any" class="form-control d-inline" name="quantity[]" placeholder="Quantity" required>
+                <input type="text" class="form-control d-inline" name="unit[]" placeholder="Unit" required>
+            `;
+            ingredientsDiv.appendChild(ingredientGroup);
+        }
+    </script>
+</body>
+</html>
